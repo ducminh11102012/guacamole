@@ -1,50 +1,16 @@
-version: "3.9"
-
+version: "3"
 services:
-  postgres:
-    image: postgres:17
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: guacamole_db
-      POSTGRES_USER: guacamole_user
-      POSTGRES_PASSWORD: CHANGE_ME_PASSWORD
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: "0.03"
-          memory: 96M
-
-  guacd:
-    image: guacamole/guacd:latest
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: "0.01"
-          memory: 32M
-
   guacamole:
-    image: decoge/guacamole-railway:latest
-    restart: unless-stopped
-    depends_on:
-      - postgres
-      - guacd
+    image: flcontainers/guacamole
+    container_name: guacamole
     environment:
-      GUACD_HOSTNAME: guacd
-      POSTGRESQL_HOSTNAME: postgres
-      POSTGRESQL_PORT: 5432
-      POSTGRESQL_DATABASE: guacamole_db
-      POSTGRESQL_USER: guacamole_user
-      POSTGRESQL_PASSWORD: CHANGE_ME_PASSWORD
+      TZ: 'UTC'
+      EXTENSIONS: 'auth-totp,auth-ldap'
+    volumes:
+      - postgres:/config
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - "8080:8080"
-    deploy:
-      resources:
-        limits:
-          cpus: "0.06"
-          memory: 128M
-
+      - 8080:8080
 volumes:
-  postgres_data:
+  postgres:
+    driver: local
