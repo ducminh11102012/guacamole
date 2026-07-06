@@ -3,7 +3,6 @@ version: "3.9"
 services:
   postgres:
     image: postgres:17
-    container_name: guacamole-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: guacamole_db
@@ -11,15 +10,23 @@ services:
       POSTGRES_PASSWORD: CHANGE_ME_PASSWORD
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: "0.03"
+          memory: 96M
 
   guacd:
     image: guacamole/guacd:latest
-    container_name: guacamole-guacd
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
+          memory: 32M
 
   guacamole:
     image: decoge/guacamole-railway:latest
-    container_name: guacamole
     restart: unless-stopped
     depends_on:
       - postgres
@@ -33,6 +40,11 @@ services:
       POSTGRESQL_PASSWORD: CHANGE_ME_PASSWORD
     ports:
       - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.06"
+          memory: 128M
 
 volumes:
   postgres_data:
